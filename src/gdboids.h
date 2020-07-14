@@ -12,7 +12,7 @@ class GDBoids : public Node {
 
 public:
   static void _register_methods() {
-    register_method("_process", &godot::GDBoids::_process);
+    register_method("_physics_process", &godot::GDBoids::_physics_process);
   }
 
   GDBoids() {}
@@ -20,8 +20,8 @@ public:
 
   void _init() {}
 
-  void _process(float delta) {
-    std::cout << "asdf" << std::endl;
+  void _physics_process(float delta) {
+    std::cout << "qwer" << std::endl;
   }
 };
 
