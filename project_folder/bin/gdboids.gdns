@@ -1,0 +1,9 @@
+[gd_resource type="NativeScript" load_steps=2 format=2]
+
+[ext_resource path="res://bin/gdocean_s.gdnlib" type="GDNativeLibrary" id=1]
+
+[resource]
+
+resource_name = "gdboids"
+class_name = "GDBoids"
+library = ExtResource( 1 )
