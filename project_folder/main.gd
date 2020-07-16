@@ -21,7 +21,7 @@ func _process(delta):
 	t += delta
 	if t > 2.0:
 		var pp = get_node("PassiveParticles2D")
-		var amount = pp.get_amount() * 2
+		var amount = pp.get_amount() * 2 
 		pp.set_amount(amount)
 		print(amount)
 		print(Engine.get_frames_per_second())

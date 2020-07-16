@@ -45,6 +45,7 @@ public:
 
     auto w_states = states.write();
     auto w_positions = positions.write();
+    auto w_velocities = velocities.write();
     auto w_directions = directions.write();
 
     for (int i = amount; i < new_amount; i++) {
@@ -54,6 +55,10 @@ public:
         RAND_RANGE(0.0, 1000.0),
         RAND_RANGE(0.0, 1000.0)
       );
+      w_velocities[i] = Vector2(
+        RAND_RANGE(-100.0, 100.0),
+        RAND_RANGE(-100.0, 100.0)
+      );
       w_directions[i] = Vector2(1.0, 0.0);
     }
 
@@ -62,14 +67,22 @@ public:
 
   void _physics_process(float delta) {
 
+    auto animation_speed = p_passive_particles->get_param(PassiveParticles2D::PARAM_ANIM_SPEED);
+
     if (!initialized) return;
 
+    auto w_states = states.write();
     auto w_positions = positions.write();
     auto w_velocities = velocities.write();
+    auto w_directions = directions.write();
 
     for (int i = 0; i < amount; i++) {
-      w_velocities[i] -= w_positions[i] * delta;
+      //w_velocities[i] -= w_positions[i] * delta;
       w_positions[i] += w_velocities[i] * delta;
+
+      auto vel_norm = w_velocities[i].length();
+      w_states[i] = fmod(w_states[i] + 0.001 * vel_norm * animation_speed, 1.0);
+      w_directions[i] = (w_velocities[i] / (vel_norm == 0.0 ? 1.0 : vel_norm)).tangent();
     }
 
   }
