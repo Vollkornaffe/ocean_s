@@ -5,6 +5,7 @@ extends Node2D
 # var a = 2
 # var b = "text"
 
+var t = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -15,3 +16,13 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
+
+func _process(delta):
+	t += delta
+	if t > 2.0:
+		var pp = get_node("PassiveParticles2D")
+		var amount = pp.get_amount() * 2
+		pp.set_amount(amount)
+		print(amount)
+		print(Engine.get_frames_per_second())
+		t = 0
