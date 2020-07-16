@@ -104806,6 +104806,37 @@
 						"default_value": ""
 					}
 				]
+			},
+			{
+				"name": "write_data",
+				"return_type": "void",
+				"is_editor": false,
+				"is_noscript": false,
+				"is_const": false,
+				"is_reverse": false,
+				"is_virtual": false,
+				"has_varargs": false,
+				"is_from_script": false,
+				"arguments": [
+					{
+						"name": "arg0",
+						"type": "PoolRealArray",
+						"has_default_value": false,
+						"default_value": ""
+					},
+					{
+						"name": "arg1",
+						"type": "PoolVector2Array",
+						"has_default_value": false,
+						"default_value": ""
+					},
+					{
+						"name": "arg2",
+						"type": "PoolVector2Array",
+						"has_default_value": false,
+						"default_value": ""
+					}
+				]
 			}
 		],
 		"enums": [
