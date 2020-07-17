@@ -31,7 +31,7 @@ margin_bottom = 14.0
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 margin_right = 54.0
 margin_bottom = 14.0
-text = "FPS: 117"
+text = "FPS: 145"
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
