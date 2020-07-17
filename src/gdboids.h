@@ -16,18 +16,29 @@ class GDBoids : public Node {
 
 public:
   static void _register_methods() {
-    register_method("_physics_process", &godot::GDBoids::_physics_process);
-    register_method("_process", &godot::GDBoids::_process);
-    register_method("set_passive_particles", &godot::GDBoids::set_passive_particles);
+    register_method("physics_process", &godot::GDBoids::physics_process);
+    register_method("write_to_particles", &godot::GDBoids::write_to_particles);
+
+    register_property<GDBoids, int>("base/amount", &GDBoids::set_amount, &GDBoids::get_amount, 0);
+    register_property<GDBoids, float>("base/animation_speed", &GDBoids::_animation_speed, 1.0);
   }
+
+  enum State {
+    STATE_FISH_RED,
+    STATE_FISH_GREEN,
+    STATE_FISH_BLUE,
+    STATE_MAX,
+  };
 
   GDBoids() {}
   ~GDBoids() {}
 
   void _init() {
 
-    amount = 0;
-    p_passive_particles = NULL;
+    std::cout << "Initializing GDBoids" << std::endl; 
+
+    _amount = 0;
+    _animation_speed = 1.0;
     initialized = true;
 
   }
@@ -36,21 +47,27 @@ public:
 
     if (!initialized) return;
 
-    if (amount == new_amount) return;
+    if (_amount == new_amount) return;
 
     states.resize(new_amount);
+    animation_phases.resize(new_amount);
+    animation_offsets.resize(new_amount);
     positions.resize(new_amount);
     velocities.resize(new_amount);
     directions.resize(new_amount);
 
     auto w_states = states.write();
+    auto w_animation_phases = animation_phases.write();
+    auto w_animation_offsets = animation_offsets.write();
     auto w_positions = positions.write();
     auto w_velocities = velocities.write();
     auto w_directions = directions.write();
 
-    for (int i = amount; i < new_amount; i++) {
+    for (int i = _amount; i < new_amount; i++) {
 
-      w_states[i] = 0.0;
+      w_states[i] = rand() % STATE_MAX;
+      w_animation_phases[i] = 0.0;
+      w_animation_offsets[i] = (float) w_states[i] / (float) STATE_MAX;
       w_positions[i] = Vector2(
         RAND_RANGE(0.0, 1000.0),
         RAND_RANGE(0.0, 1000.0)
@@ -62,64 +79,62 @@ public:
       w_directions[i] = Vector2(1.0, 0.0);
     }
 
-    amount = new_amount;
+    _amount = new_amount;
   }
 
-  void _physics_process(float delta) {
+  int get_amount() {
+    return _amount;
+  }
 
-    auto animation_speed = p_passive_particles->get_param(PassiveParticles2D::PARAM_ANIM_SPEED);
+  void physics_process(float delta) {
 
     if (!initialized) return;
 
     auto w_states = states.write();
+    auto w_animation_phases = animation_phases.write();
+    auto w_animation_offsets = animation_offsets.write();
     auto w_positions = positions.write();
     auto w_velocities = velocities.write();
     auto w_directions = directions.write();
 
-    for (int i = 0; i < amount; i++) {
+    for (int i = 0; i < _amount; i++) {
       //w_velocities[i] -= w_positions[i] * delta;
       w_positions[i] += w_velocities[i] * delta;
 
       auto vel_norm = w_velocities[i].length();
-      w_states[i] = fmod(w_states[i] + 0.001 * vel_norm * animation_speed, 1.0);
+      w_animation_phases[i] = fmod(w_animation_phases[i] + 0.001 * vel_norm * _animation_speed, 1.0);
+      w_animation_offsets[i] = ((float) w_states[i] + w_animation_phases[i]) / (float) STATE_MAX;
       w_directions[i] = (w_velocities[i] / (vel_norm == 0.0 ? 1.0 : vel_norm)).tangent();
     }
 
   }
 
-  void _process(float _delta) {
+  void write_to_particles(PassiveParticles2D* p) {
 
     if (!initialized) return;
 
-    if (p_passive_particles == NULL) {
-      std::cout << "no passive particles set" << std::endl;
-      return;
-    } 
-
-    if (p_passive_particles->get_amount() != amount) {
-      set_amount(p_passive_particles->get_amount());
+    if (p->get_amount() != _amount) {
+      set_amount(p->get_amount());
     }
 
-    p_passive_particles->write_data(states, positions, directions);
+    p->write_data(animation_offsets, positions, directions);
 
   }
 
-  void set_passive_particles(PassiveParticles2D* p) {
-    p_passive_particles = p;
-  }
+  float _animation_speed;
 
 private:
 
   bool initialized = false;
 
-  int amount;
+  int _amount;
 
-  PoolRealArray states;
+  PoolIntArray states;
+  PoolRealArray animation_phases;
+  PoolRealArray animation_offsets;
   PoolVector2Array positions;
   PoolVector2Array velocities;
   PoolVector2Array directions;
-
-  PassiveParticles2D * p_passive_particles;
 
 };
 
