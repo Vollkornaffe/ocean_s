@@ -26,4 +26,4 @@ func _process(delta):
 	get_node("GDBoids").write_to_particles(pp)
 
 func _physics_process(delta):
-	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), delta)
+	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)

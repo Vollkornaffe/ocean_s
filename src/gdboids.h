@@ -7,6 +7,8 @@
 #include <PassiveParticles2D.hpp>
 #include <PoolArrays.hpp>
 
+#include "sdf.h"
+
 #define RAND_RANGE(LO,HI) LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)))
 
 namespace godot {
@@ -88,7 +90,7 @@ public:
     return _amount;
   }
 
-  void physics_process(Vector2 goal, float delta) {
+  void physics_process(Vector2 goal, SDF * sdf, float delta) {
 
     if (!initialized) return;
 
@@ -99,15 +101,36 @@ public:
     auto w_velocities = velocities.write();
     auto w_directions = directions.write();
 
-    for (int i = 0; i < _amount; i++) {
-      w_velocities[i] += _overall_speed * (goal - w_positions[i]) * delta;
-      w_velocities[i] -= _damping * w_velocities[i] * delta;
-      w_positions[i] += w_velocities[i] * delta;
+    auto sdf_scale = sdf->get_scale();
 
-      auto vel_norm = w_velocities[i].length();
+    for (int i = 0; i < _amount; i++) {
+
+      auto position = w_positions[i];
+      auto velocity = w_velocities[i];
+      auto force = Vector2(0.0, 0.0);
+
+      // boundary
+      auto sdf_index = sdf->idx(position.x / sdf_scale.x, position.y / sdf_scale.y);
+      auto sdf_value = sdf->values[sdf_index];
+      auto sdf_gradient = sdf->gradients[sdf_index];
+
+      if (sdf_value < 0.0) {
+        position -= sdf_value * sdf_gradient;
+      }
+
+      force += _overall_speed * (goal - position);
+      force -= _damping * velocity;
+      velocity += force * delta;
+      position += velocity * delta;
+
+      auto vel_norm = velocity.length();
       w_animation_phases[i] = fmod(w_animation_phases[i] + 0.001 * vel_norm * _animation_speed, 1.0);
       w_animation_offsets[i] = ((float) w_states[i] + w_animation_phases[i]) / (float) STATE_MAX;
-      w_directions[i] = (w_velocities[i] / (vel_norm == 0.0 ? 1.0 : vel_norm)).tangent();
+      w_directions[i] = (velocity / (vel_norm == 0.0 ? 1.0 : vel_norm)).tangent();
+
+      // writing
+      w_positions[i] = position;
+      w_velocities[i] = velocity;
     }
 
   }
