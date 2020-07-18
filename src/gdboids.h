@@ -21,6 +21,8 @@ public:
 
     register_property<GDBoids, int>("base/amount", &GDBoids::set_amount, &GDBoids::get_amount, 0);
     register_property<GDBoids, float>("base/animation_speed", &GDBoids::_animation_speed, 1.0);
+    register_property<GDBoids, float>("base/overall_speed", &GDBoids::_overall_speed, 1.0);
+    register_property<GDBoids, float>("base/damping", &GDBoids::_damping, 1.0);
   }
 
   enum State {
@@ -86,7 +88,7 @@ public:
     return _amount;
   }
 
-  void physics_process(float delta) {
+  void physics_process(Vector2 goal, float delta) {
 
     if (!initialized) return;
 
@@ -98,7 +100,8 @@ public:
     auto w_directions = directions.write();
 
     for (int i = 0; i < _amount; i++) {
-      //w_velocities[i] -= w_positions[i] * delta;
+      w_velocities[i] += _overall_speed * (goal - w_positions[i]) * delta;
+      w_velocities[i] -= _damping * w_velocities[i] * delta;
       w_positions[i] += w_velocities[i] * delta;
 
       auto vel_norm = w_velocities[i].length();
@@ -122,6 +125,8 @@ public:
   }
 
   float _animation_speed;
+  float _overall_speed;
+  float _damping;
 
 private:
 
