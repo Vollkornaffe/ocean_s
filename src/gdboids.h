@@ -21,10 +21,12 @@ public:
     register_method("physics_process", &godot::GDBoids::physics_process);
     register_method("write_to_particles", &godot::GDBoids::write_to_particles);
 
-    register_property<GDBoids, int>("base/amount", &GDBoids::set_amount, &GDBoids::get_amount, 0);
-    register_property<GDBoids, float>("base/animation_speed", &GDBoids::_animation_speed, 1.0);
-    register_property<GDBoids, float>("base/overall_speed", &GDBoids::_overall_speed, 1.0);
-    register_property<GDBoids, float>("base/damping", &GDBoids::_damping, 1.0);
+    register_property<GDBoids, int>("amount", &GDBoids::set_amount, &GDBoids::get_amount, 0);
+    register_property<GDBoids, float>("animation_speed", &GDBoids::_animation_speed, 1.0);
+    register_property<GDBoids, float>("to_mouse", &GDBoids::_to_mouse, 1.0);
+    register_property<GDBoids, float>("damping", &GDBoids::_damping, 1.0);
+    register_property<GDBoids, float>("boundary_range", &GDBoids::_boundary_range, 20.0);
+    register_property<GDBoids, float>("boundary_force", &GDBoids::_boundary_range, 1.0);
   }
 
   enum State {
@@ -37,12 +39,17 @@ public:
   GDBoids() {}
   ~GDBoids() {}
 
+
   void _init() {
 
     std::cout << "Initializing GDBoids" << std::endl; 
 
     _amount = 0;
     _animation_speed = 1.0;
+    _to_mouse = 1.0;
+    _damping = 1.0;
+    _boundary_range = 20.0;
+    _boundary_force = 1.0;
     initialized = true;
 
   }
@@ -76,10 +83,7 @@ public:
         RAND_RANGE(0.0, 1000.0),
         RAND_RANGE(0.0, 1000.0)
       );
-      w_velocities[i] = Vector2(
-        RAND_RANGE(-100.0, 100.0),
-        RAND_RANGE(-100.0, 100.0)
-      );
+      w_velocities[i] = Vector2(0.0, 0.0);
       w_directions[i] = Vector2(1.0, 0.0);
     }
 
@@ -113,20 +117,23 @@ public:
       auto sdf_index = sdf->idx(position.x / sdf_scale.x, position.y / sdf_scale.y);
       auto sdf_value = sdf->values[sdf_index];
       auto sdf_gradient = sdf->gradients[sdf_index];
-
       if (sdf_value < 0.0) {
         position -= sdf_value * sdf_gradient;
+        velocity -= sdf_gradient * sdf_gradient.dot(velocity);
+      } else if (sdf_value < _boundary_range) {
+        force -= (sdf_value - _boundary_range)  * sdf_gradient * _boundary_force;
       }
 
-      force += _overall_speed * (goal - position);
+      force += _to_mouse * (goal - position);
       force -= _damping * velocity;
+
       velocity += force * delta;
       position += velocity * delta;
 
       auto vel_norm = velocity.length();
       w_animation_phases[i] = fmod(w_animation_phases[i] + 0.001 * vel_norm * _animation_speed, 1.0);
       w_animation_offsets[i] = ((float) w_states[i] + w_animation_phases[i]) / (float) STATE_MAX;
-      w_directions[i] = (velocity / (vel_norm == 0.0 ? 1.0 : vel_norm)).tangent();
+      w_directions[i] = vel_norm == 0.0 ? w_directions[i] : (velocity / vel_norm).tangent();
 
       // writing
       w_positions[i] = position;
@@ -147,15 +154,16 @@ public:
 
   }
 
+  int _amount;
   float _animation_speed;
-  float _overall_speed;
+  float _to_mouse;
   float _damping;
+  float _boundary_range;
+  float _boundary_force;
 
 private:
 
   bool initialized = false;
-
-  int _amount;
 
   PoolIntArray states;
   PoolRealArray animation_phases;
