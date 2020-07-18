@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://bin/gdboids.gdns" type="Script" id=1]
 [ext_resource path="res://main.gd" type="Script" id=2]
 [ext_resource path="res://animations/critter_combined.png" type="Texture" id=3]
 [ext_resource path="res://PerfomanceStats.tscn" type="PackedScene" id=4]
+[ext_resource path="res://bin/sdf.gdns" type="Script" id=5]
+[ext_resource path="res://Sprite.gd" type="Script" id=6]
+[ext_resource path="res://icon.png" type="Texture" id=7]
+[ext_resource path="res://Line2D.gd" type="Script" id=8]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 particles_animation = true
@@ -20,10 +24,24 @@ script = ExtResource( 2 )
 
 [node name="PassiveParticles2D" type="PassiveParticles2D" parent="."]
 material = SubResource( 1 )
-position = Vector2( 191.118, 77.5988 )
 amount = 64
 texture = ExtResource( 3 )
 anim_speed = 1.0
 
 [node name="GDBoids" type="Node" parent="."]
 script = ExtResource( 1 )
+
+[node name="SDF" type="Node" parent="."]
+script = ExtResource( 5 )
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+invert_enable = true
+polygon = PoolVector2Array( 122, 91, 355, 368, 739, 78 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 7 )
+script = ExtResource( 6 )
+
+[node name="Line2D" type="Line2D" parent="."]
+points = PoolVector2Array( -66, 217, 77, 277 )
+script = ExtResource( 8 )

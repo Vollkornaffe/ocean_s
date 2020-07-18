@@ -9,6 +9,7 @@ var t = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	get_node("SDF").calculate_from_polygon(1.0, 1000, 1000, get_node("Polygon2D"))
 	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
