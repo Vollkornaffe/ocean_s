@@ -40,7 +40,8 @@ void fragment() {
 	if (instance_custom.z > 1.0/3.0) {
 		COLOR = vec4(251.0 / 255.0, 242.0 / 255.0, 054.0 / 255.0, 0.5)
 			* float(dot(local_coord, local_coord) > 0.8 * 0.8)
-			* float(dot(local_coord, local_coord) < 1.0);
+			* float(dot(local_coord, local_coord) < 1.0)
+			* (abs(mod(TIME, 1.0) - 0.5) + 0.5);
 	}
 	vec4 tex_color = texture(TEXTURE, UV);
 	COLOR = tex_color.a * tex_color + (1.0 - tex_color.a) * COLOR;
