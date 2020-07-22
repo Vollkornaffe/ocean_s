@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/critter_combined.png-ebdb1a8f785ef0bad60f6326f6a7570f.stex"
+path="res://.import/critter_green2.png-f14b49c0bf3666892011c5126592be88.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://animations/critter_combined.png"
-dest_files=[ "res://.import/critter_combined.png-ebdb1a8f785ef0bad60f6326f6a7570f.stex" ]
+source_file="res://animations/critter_green2.png"
+dest_files=[ "res://.import/critter_green2.png-f14b49c0bf3666892011c5126592be88.stex" ]
 
 [params]
 
