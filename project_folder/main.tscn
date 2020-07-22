@@ -1,13 +1,11 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://bin/gdboids.gdns" type="Script" id=1]
 [ext_resource path="res://main.gd" type="Script" id=2]
 [ext_resource path="res://animations/critter_combined.png" type="Texture" id=3]
 [ext_resource path="res://PerfomanceStats.tscn" type="PackedScene" id=4]
 [ext_resource path="res://bin/sdf.gdns" type="Script" id=5]
-[ext_resource path="res://Sprite.gd" type="Script" id=6]
-[ext_resource path="res://icon.png" type="Texture" id=7]
-[ext_resource path="res://Line2D.gd" type="Script" id=8]
+[ext_resource path="res://Selection.tscn" type="PackedScene" id=9]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -61,6 +59,8 @@ script = ExtResource( 2 )
 
 [node name="Control" parent="GUI" instance=ExtResource( 4 )]
 
+[node name="ReferenceRect" parent="GUI" instance=ExtResource( 9 )]
+
 [node name="PassiveParticles2D" type="PassiveParticles2D" parent="."]
 material = SubResource( 2 )
 z_index = 1
@@ -70,14 +70,6 @@ anim_speed = 1.0
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 polygon = PoolVector2Array( 22.7725, 126.284, 158.69, 198.018, 166.241, 318.834, 239.864, 450.977, 481.495, 488.732, 743.893, 477.405, 866.596, 371.691, 808.076, 164.039, 573.995, 65.8761, 381.445, 96.08, 292.721, 13.0191, 670.27, 7.35587, 872.259, 56.4373, 974.198, 114.958, 959.096, 322.61, 938.331, 547.252, 730.678, 571.793, 362.567, 573.68, 145.476, 537.813, 103.946, 418.885 )
-
-[node name="Sprite" type="Sprite" parent="."]
-texture = ExtResource( 7 )
-script = ExtResource( 6 )
-
-[node name="Line2D" type="Line2D" parent="."]
-points = PoolVector2Array( -66, 217, 77, 277 )
-script = ExtResource( 8 )
 
 [node name="SDF" type="ReferenceRect" parent="."]
 margin_right = 1000.0
