@@ -1,50 +1,42 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://WindowDialog.gd" type="Script" id=1]
-[ext_resource path="res://ScrollContainer.gd" type="Script" id=3]
-[ext_resource path="res://icons/graphs.png" type="Texture" id=4]
 
 [sub_resource type="Theme" id=1]
 
 [node name="SpeciesView" type="WindowDialog"]
-visible = true
 margin_left = 128.0
 margin_top = 75.0
 margin_right = 896.0
 margin_bottom = 525.0
 popup_exclusive = true
+window_title = "Species View"
 resizable = true
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
-margin_left = -2.24493
-margin_right = 765.755
-margin_bottom = 450.0
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
+margin_right = 748.0
+margin_bottom = 430.0
 theme = SubResource( 1 )
-script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
-margin_right = 56.0
-margin_bottom = 40.0
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Settings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
-margin_right = 56.0
-margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="CheckBox" type="CheckBox" parent="ScrollContainer/VBoxContainer/Settings"]
-margin_right = 56.0
-margin_bottom = 40.0
-icon = ExtResource( 4 )
-[connection signal="resized" from="." to="ScrollContainer" method="_on_SpeciesView_resized"]
