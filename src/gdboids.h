@@ -83,6 +83,7 @@ public:
 
     for (int i = _amount; i < new_amount; i++) {
 
+      w_actives[i] = 1;
       w_selects[i] = 0;
       w_species[i] = rand() % SPECIES_MAX;
       w_animation_phases[i] = 0.0;
@@ -119,6 +120,8 @@ public:
     auto sdf_scale = sdf->get_scale();
 
     for (int i = 0; i < _amount; i++) {
+
+      if (!w_actives[i]) continue;
 
       auto position = w_positions[i];
       auto velocity = w_velocities[i];
