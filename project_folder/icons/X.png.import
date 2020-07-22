@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/critter_combined.png-ebdb1a8f785ef0bad60f6326f6a7570f.stex"
+path="res://.import/X.png-d0fe4d4f01865faa1d797929546fd234.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://animations/critter_combined.png"
-dest_files=[ "res://.import/critter_combined.png-ebdb1a8f785ef0bad60f6326f6a7570f.stex" ]
+source_file="res://icons/X.png"
+dest_files=[ "res://.import/X.png-d0fe4d4f01865faa1d797929546fd234.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=false
+flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

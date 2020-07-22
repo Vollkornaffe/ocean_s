@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://WindowDialog.gd" type="Script" id=1]
+
+[sub_resource type="Theme" id=1]
+
+[node name="SpeciesView" type="WindowDialog"]
+margin_left = 128.0
+margin_top = 75.0
+margin_right = 896.0
+margin_bottom = 525.0
+popup_exclusive = true
+window_title = "Species View"
+resizable = true
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
+margin_right = 748.0
+margin_bottom = 430.0
+theme = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
+__meta__ = {
+"_edit_use_anchors_": false
+}
