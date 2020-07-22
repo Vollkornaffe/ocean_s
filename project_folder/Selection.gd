@@ -29,6 +29,7 @@ func _process(delta):
 			diff.y *= -1.0
 		set_size(diff)
 		set_position(pos)
+		emit_signal("update_selection", get_position(), get_size())
 	else:
 		stored_position = mouse_position
 		set_position(mouse_position)

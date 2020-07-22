@@ -20,7 +20,7 @@ public:
   static void _register_methods() {
     register_method("physics_process", &godot::GDBoids::physics_process);
     register_method("write_to_particles", &godot::GDBoids::write_to_particles);
-
+    register_method("update_selection", &godot::GDBoids::update_selection);
 
     register_property<GDBoids, int>("amount", &GDBoids::set_amount, &GDBoids::get_amount, 0);
     register_property<GDBoids, float>("animation_speed", &GDBoids::_animation_speed, 1.0);
@@ -103,6 +103,25 @@ public:
     return _amount;
   }
 
+  void update_selection(Vector2 start, Vector2 end) {
+
+    auto w_selects = selects.write();
+    auto r_positions = positions.read();
+    for (int i = 0; i < _amount; i++) {
+
+      if (
+         r_positions[i].x >= start.x && r_positions[i].x <= end.x
+      && r_positions[i].y >= start.y && r_positions[i].y <= end.y
+      ) {
+        w_selects[i] = 1;
+      } else {
+        w_selects[i] = 0;
+      }
+
+    }
+
+  }
+
   void physics_process(Vector2 goal, SDF * sdf, float delta) {
 
     if (!initialized) return;
@@ -146,7 +165,10 @@ public:
 
       auto vel_norm = velocity.length();
       w_animation_phases[i] = fmod(w_animation_phases[i] + 0.001 * vel_norm * _animation_speed, 1.0);
+
+      w_custom_data_xy[i].x = float(w_selects[i]);
       w_custom_data_zw[i].x = ((float) w_species[i] + w_animation_phases[i]) / (float) SPECIES_MAX;
+
       w_directions[i] = vel_norm == 0.0 ? w_directions[i] : (velocity / vel_norm).tangent();
 
       // writing

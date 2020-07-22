@@ -30,16 +30,18 @@ void vertex() {
 }
 
 void fragment() {
+	float h_frames = float(particles_anim_h_frames);
+	float v_frames = float(particles_anim_v_frames);
 	COLOR = vec4(0.0,0.0,0.0,0.0);
 	vec2 local_coord = vec2(
-		mod(UV.x, 1.0/4.0) * 4.0 * 2.0 - 1.0,
-		mod(UV.y, 1.0/3.0) * 3.0 * 2.0 - 1.0
+		mod(UV.x, 1.0/h_frames) * h_frames * 2.0 - 1.0,
+		mod(UV.y, 1.0/v_frames) * v_frames * 2.0 - 1.0
 	);
-	if (instance_custom.z > 1.0/3.0) {
+	if (instance_custom.x != 0.0) {
 		COLOR = vec4(251.0 / 255.0, 242.0 / 255.0, 054.0 / 255.0, 0.5)
 			* float(dot(local_coord, local_coord) > 0.8 * 0.8)
 			* float(dot(local_coord, local_coord) < 1.0)
-			* (abs(mod(TIME, 1.0) - 0.5) + 0.5);
+			* (abs(mod(TIME, 0.5) - 0.25) + 0.75);
 	}
 	vec4 tex_color = texture(TEXTURE, UV);
 	COLOR = tex_color.a * tex_color + (1.0 - tex_color.a) * COLOR;
@@ -59,7 +61,7 @@ script = ExtResource( 2 )
 
 [node name="Control" parent="GUI" instance=ExtResource( 4 )]
 
-[node name="ReferenceRect" parent="GUI" instance=ExtResource( 9 )]
+[node name="SelectionRect" parent="GUI" instance=ExtResource( 9 )]
 
 [node name="PassiveParticles2D" type="PassiveParticles2D" parent="."]
 material = SubResource( 2 )
@@ -81,6 +83,4 @@ __meta__ = {
 
 [node name="GDBoids" type="Node" parent="."]
 script = ExtResource( 1 )
-damping = 0.1
-boundary_range = 100.0
-boundary_force = 100.0
+[connection signal="update_selection" from="GUI/SelectionRect" to="." method="_on_SelectionRect_update_selection"]
