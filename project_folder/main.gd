@@ -27,10 +27,12 @@ func _process(delta):
 	var amount = pp.get_amount()
 	if t > 2.0 and amount < 16384:
 		pp.set_amount(amount * 2)
+		print(amount * 2)
 		t = 0
 	get_node("GDBoids").write_to_particles(pp)
 
 func _physics_process(delta):
+	get_node("GDBoids").update_acceleration_structure()
 	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)
 
 

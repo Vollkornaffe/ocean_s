@@ -78,7 +78,7 @@ public:
         const auto p = Vector2(i * _scale.x, j * _scale.y);
 
         Vector2 r;
-        float s = 1.0;
+        float s = -1.0;
         //float d = (p-v[0]).length_squared();
         float d = std::numeric_limits<float>::max();
         int l = N-1;
