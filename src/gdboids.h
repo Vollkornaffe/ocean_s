@@ -7,6 +7,8 @@
 #include <PassiveParticles2D.hpp>
 #include <PoolArrays.hpp>
 
+#include <map>
+
 #include "sdf.h"
 
 #define RAND_RANGE(LO,HI) LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)))
@@ -19,6 +21,7 @@ class GDBoids : public Node {
 public:
   static void _register_methods() {
     register_method("physics_process", &godot::GDBoids::physics_process);
+    register_method("update_acceleration_structure", &godot::GDBoids::update_acceleration_structure);
     register_method("write_to_particles", &godot::GDBoids::write_to_particles);
     register_method("update_selection", &godot::GDBoids::update_selection);
 
@@ -28,6 +31,9 @@ public:
     register_property<GDBoids, float>("damping", &GDBoids::_damping, 1.0);
     register_property<GDBoids, float>("boundary_range", &GDBoids::_boundary_range, 20.0);
     register_property<GDBoids, float>("boundary_force", &GDBoids::_boundary_range, 1.0);
+
+    register_property<GDBoids, float>("cell_size", &GDBoids::_cell_size, 100.0);
+    register_property<GDBoids, bool>("print_max_collision", &GDBoids::_print_max_collision, true);
   }
 
   enum Species {
@@ -122,6 +128,27 @@ public:
 
   }
 
+  // this uses the cantor pairing function to map the positive quadrant
+  inline int key_from_position(Vector2 const p) {
+      int key_x = clamp(0, int(floor(p.x / _cell_size)), std::numeric_limits<int>::max());
+      int key_y = clamp(0, int(floor(p.y / _cell_size)), std::numeric_limits<int>::max());
+      return ((key_x + key_y) * (key_x + key_y + 1)) / 2 + key_y;
+  }
+
+  void update_acceleration_structure() {
+
+    acceleration_structure.clear();
+
+    auto r_actives = actives.read();
+    auto r_positions = positions.read();
+
+    for (int i = 0; i < _amount; i++) {
+      if (!r_actives[i]) continue;
+      acceleration_structure.insert(std::make_pair(key_from_position(r_positions[i]), i));
+    }
+
+  }
+
   void physics_process(Vector2 goal, SDF * sdf, float delta) {
 
     if (!initialized) return;
@@ -157,18 +184,23 @@ public:
         force -= (sdf_value - _boundary_range)  * sdf_gradient * _boundary_force;
       }
 
+      // just for testing, make all the boids move towards mouse
       force += _to_mouse * (goal - position);
       force -= _damping * velocity;
 
+      // here neighbors are considered
+      // TODO
+
+
+      // simple time integration
       velocity += force * delta;
       position += velocity * delta;
 
+      // this is for displaying
       auto vel_norm = velocity.length();
       w_animation_phases[i] = fmod(w_animation_phases[i] + 0.001 * vel_norm * _animation_speed, 1.0);
-
       w_custom_data_xy[i].x = float(w_selects[i]);
       w_custom_data_zw[i].x = ((float) w_species[i] + w_animation_phases[i]) / (float) SPECIES_MAX;
-
       w_directions[i] = vel_norm == 0.0 ? w_directions[i] : (velocity / vel_norm).tangent();
 
       // writing
@@ -197,6 +229,9 @@ public:
   float _boundary_range;
   float _boundary_force;
 
+  float _cell_size;
+  bool _print_max_collision;
+
 private:
 
   bool initialized = false;
@@ -212,6 +247,10 @@ private:
   PoolVector2Array custom_data_zw;
   PoolVector2Array positions;
   PoolVector2Array directions;
+
+
+  // these are for accelerating neighbor searches
+  std::multimap<int, int> acceleration_structure;
 
 };
 
