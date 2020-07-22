@@ -13,7 +13,7 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	var p = get_node("../Sprite").get_position()
+	var p = get_viewport().get_mouse_position()
 	set_point_position(0, p)
 	set_point_position(1, p + get_node("../SDF").get_gradient(p) * 100)
 	print(get_node("../SDF").get_value(p))

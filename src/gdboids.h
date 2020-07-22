@@ -20,6 +20,7 @@ public:
   static void _register_methods() {
     register_method("physics_process", &godot::GDBoids::physics_process);
     register_method("write_to_particles", &godot::GDBoids::write_to_particles);
+    register_method("update_selection", &godot::GDBoids::update_selection);
 
     register_property<GDBoids, int>("amount", &GDBoids::set_amount, &GDBoids::get_amount, 0);
     register_property<GDBoids, float>("animation_speed", &GDBoids::_animation_speed, 1.0);
@@ -29,11 +30,11 @@ public:
     register_property<GDBoids, float>("boundary_force", &GDBoids::_boundary_range, 1.0);
   }
 
-  enum State {
-    STATE_FISH_RED,
-    STATE_FISH_GREEN,
-    STATE_FISH_BLUE,
-    STATE_MAX,
+  enum Species {
+    SPECIES_FISH_RED,
+    SPECIES_FISH_GREEN,
+    SPECIES_FISH_BLUE,
+    SPECIES_MAX,
   };
 
   GDBoids() {}
@@ -60,25 +61,33 @@ public:
 
     if (_amount == new_amount) return;
 
-    states.resize(new_amount);
+    selects.resize(new_amount);
+    species.resize(new_amount);
     animation_phases.resize(new_amount);
-    animation_offsets.resize(new_amount);
-    positions.resize(new_amount);
     velocities.resize(new_amount);
+    actives.resize(new_amount);
+    custom_data_xy.resize(new_amount);
+    custom_data_zw.resize(new_amount);
+    positions.resize(new_amount);
     directions.resize(new_amount);
 
-    auto w_states = states.write();
+    auto w_selects = selects.write();
+    auto w_species = species.write();
     auto w_animation_phases = animation_phases.write();
-    auto w_animation_offsets = animation_offsets.write();
-    auto w_positions = positions.write();
     auto w_velocities = velocities.write();
+    auto w_actives = actives.write();
+    auto w_custom_data_xy = custom_data_xy.write();
+    auto w_custom_data_zw = custom_data_zw.write();
+    auto w_positions = positions.write();
     auto w_directions = directions.write();
 
     for (int i = _amount; i < new_amount; i++) {
 
-      w_states[i] = rand() % STATE_MAX;
+      w_actives[i] = 1;
+      w_selects[i] = 0;
+      w_species[i] = rand() % SPECIES_MAX;
       w_animation_phases[i] = 0.0;
-      w_animation_offsets[i] = (float) w_states[i] / (float) STATE_MAX;
+      w_custom_data_zw[i].x = (float) w_species[i] / (float) SPECIES_MAX;
       w_positions[i] = Vector2(
         RAND_RANGE(0.0, 1000.0),
         RAND_RANGE(0.0, 1000.0)
@@ -94,20 +103,44 @@ public:
     return _amount;
   }
 
+  void update_selection(Vector2 start, Vector2 end) {
+
+    auto w_selects = selects.write();
+    auto r_positions = positions.read();
+    for (int i = 0; i < _amount; i++) {
+
+      if (
+         r_positions[i].x >= start.x && r_positions[i].x <= end.x
+      && r_positions[i].y >= start.y && r_positions[i].y <= end.y
+      ) {
+        w_selects[i] = 1;
+      } else {
+        w_selects[i] = 0;
+      }
+
+    }
+
+  }
+
   void physics_process(Vector2 goal, SDF * sdf, float delta) {
 
     if (!initialized) return;
 
-    auto w_states = states.write();
+    auto w_selects = selects.write();
+    auto w_species = species.write();
     auto w_animation_phases = animation_phases.write();
-    auto w_animation_offsets = animation_offsets.write();
-    auto w_positions = positions.write();
     auto w_velocities = velocities.write();
+    auto w_actives = actives.write();
+    auto w_custom_data_xy = custom_data_xy.write();
+    auto w_custom_data_zw = custom_data_zw.write();
+    auto w_positions = positions.write();
     auto w_directions = directions.write();
 
     auto sdf_scale = sdf->get_scale();
 
     for (int i = 0; i < _amount; i++) {
+
+      if (!w_actives[i]) continue;
 
       auto position = w_positions[i];
       auto velocity = w_velocities[i];
@@ -132,7 +165,10 @@ public:
 
       auto vel_norm = velocity.length();
       w_animation_phases[i] = fmod(w_animation_phases[i] + 0.001 * vel_norm * _animation_speed, 1.0);
-      w_animation_offsets[i] = ((float) w_states[i] + w_animation_phases[i]) / (float) STATE_MAX;
+
+      w_custom_data_xy[i].x = float(w_selects[i]);
+      w_custom_data_zw[i].x = ((float) w_species[i] + w_animation_phases[i]) / (float) SPECIES_MAX;
+
       w_directions[i] = vel_norm == 0.0 ? w_directions[i] : (velocity / vel_norm).tangent();
 
       // writing
@@ -150,7 +186,7 @@ public:
       set_amount(p->get_amount());
     }
 
-    p->write_data(animation_offsets, positions, directions);
+    p->write_data(actives, custom_data_xy, custom_data_zw, positions, directions);
 
   }
 
@@ -165,11 +201,16 @@ private:
 
   bool initialized = false;
 
-  PoolIntArray states;
+  PoolIntArray selects;
+  PoolIntArray species;
   PoolRealArray animation_phases;
-  PoolRealArray animation_offsets;
-  PoolVector2Array positions;
   PoolVector2Array velocities;
+
+  // these are passed to the passive particles
+  PoolIntArray actives;
+  PoolVector2Array custom_data_xy;
+  PoolVector2Array custom_data_zw;
+  PoolVector2Array positions;
   PoolVector2Array directions;
 
 };

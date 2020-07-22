@@ -32,3 +32,8 @@ func _process(delta):
 
 func _physics_process(delta):
 	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)
+
+
+func _on_SelectionRect_update_selection(position, size):
+	get_node("GDBoids").update_selection(position, position + size);
+	pass # Replace with function body.
