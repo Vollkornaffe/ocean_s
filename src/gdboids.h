@@ -239,7 +239,8 @@ public:
             auto factor_dist = 1.0 - dist / _boid_range;
             auto factor_angle = 1.0 - abs(angle) / _boid_angle / 2.0;
                 
-            auto factor = factor_dist * factor_dist * factor_angle;
+            //auto factor = factor_dist * factor_dist * factor_angle;
+            auto factor = factor_angle;
 
             average_pos += factor * position_j;
             average_vel += factor * w_velocities[j];
