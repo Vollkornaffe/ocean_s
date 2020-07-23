@@ -66,8 +66,9 @@ script = ExtResource( 2 )
 [node name="PassiveParticles2D" type="PassiveParticles2D" parent="."]
 material = SubResource( 2 )
 z_index = 1
-amount = 64
+amount = 512
 texture = ExtResource( 3 )
+scale_amount = 0.25
 anim_speed = 1.0
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
@@ -85,5 +86,12 @@ __meta__ = {
 
 [node name="GDBoids" type="Node" parent="."]
 script = ExtResource( 1 )
-cell_size = 30.0
+boundary_range = 100.0
+boundary_force = 20.0
+boid/range = 20.0
+boid/angle = 360.0
+boid/avoid = 10.0
+boid/align = 1.0
+boid/clump = 100.0
+cell_size = 40.0
 [connection signal="update_selection" from="GUI/SelectionRect" to="." method="_on_SelectionRect_update_selection"]

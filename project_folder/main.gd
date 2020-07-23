@@ -25,10 +25,10 @@ func _process(delta):
 	t += delta
 	var pp = get_node("PassiveParticles2D")
 	var amount = pp.get_amount()
-	if t > 2.0 and amount < 16384:
-		pp.set_amount(amount * 2)
-		print(amount * 2)
-		t = 0
+	#if t > 2.0 and amount < 4096:
+	#	pp.set_amount(amount * 2)
+	#	print(amount * 2)
+	#	t = 0
 	get_node("GDBoids").write_to_particles(pp)
 
 func _physics_process(delta):

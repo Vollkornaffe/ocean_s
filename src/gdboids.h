@@ -33,6 +33,13 @@ public:
     register_property<GDBoids, float>("boundary_range", &GDBoids::_boundary_range, 20.0);
     register_property<GDBoids, float>("boundary_force", &GDBoids::_boundary_range, 1.0);
 
+    register_property<GDBoids, float>("boid/range", &GDBoids::_boid_range, 10.0);
+    register_property<GDBoids, float>("boid/angle", &GDBoids::_boid_angle, 200.0);
+    register_property<GDBoids, float>("boid/avoid", &GDBoids::_boid_avoid, 0.0);
+    register_property<GDBoids, float>("boid/align", &GDBoids::_boid_align, 0.0);
+    register_property<GDBoids, float>("boid/clump", &GDBoids::_boid_clump, 0.0);
+    register_property<GDBoids, float>("boid/random", &GDBoids::_boid_random, 0.0);
+
     register_property<GDBoids, float>("cell_size", &GDBoids::_cell_size, 100.0);
     register_property<GDBoids, bool>("print_max_collision", &GDBoids::_print_max_collision, true);
   }
@@ -185,29 +192,68 @@ public:
       auto force = Vector2(0.0, 0.0);
 
       // here neighbors are considered
+
+      auto average_pos = position;
+      auto average_vel = velocity;
+      auto normalization = 1.0; // to normalize the above
+
       int key = key_from_position(position);
       int potential_neighbors = 0;
       {
         int x = floor(position.x / _cell_size);
         int y = floor(position.y / _cell_size);
+        for (auto cell: { // iterate over the neighboring cells
+          acceleration_structure[cantor_pairing(x - 1, y - 1)],
+          acceleration_structure[cantor_pairing(x - 1, y    )],
+          acceleration_structure[cantor_pairing(x - 1, y + 1)],
+          acceleration_structure[cantor_pairing(x    , y - 1)],
+          acceleration_structure[cantor_pairing(x    , y    )],
+          acceleration_structure[cantor_pairing(x    , y + 1)],
+          acceleration_structure[cantor_pairing(x + 1, y - 1)],
+          acceleration_structure[cantor_pairing(x + 1, y    )],
+          acceleration_structure[cantor_pairing(x + 1, y + 1)],
+        }) {
+          for (auto j: cell) { // iterate over the indices stored in those cells
+            if (j == i) continue;
 
-        potential_neighbors += acceleration_structure[cantor_pairing(x - 1, y - 1)].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x - 1, y    )].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x - 1, y + 1)].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x    , y - 1)].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x    , y    )].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x    , y + 1)].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x + 1, y - 1)].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x + 1, y    )].size();
-        potential_neighbors += acceleration_structure[cantor_pairing(x + 1, y + 1)].size();
+            auto position_j = w_positions[j];
+
+            // from j to i
+            auto dir = position - position_j;
+            auto sqr_dist = dir.length_squared();
+
+            if (sqr_dist > _boid_range * _boid_range) continue; // too far
+
+            // compute the actual distance
+            auto dist = sqrt(sqr_dist);
+            force += dir / dist * (_boid_range - dist) * _boid_avoid;
+
+            if (w_species[i] != w_species[j]) continue;
+
+            // velocity is also the orietation
+            auto angle = velocity.angle_to(dir);
+
+            if (abs(angle) > _boid_angle * Math_PI / 180.0 / 2.0) continue; // not in view
+
+            // these go from 1.0 (close / in front) to zero (far / just in sight)
+            auto factor_dist = 1.0 - dist / _boid_range;
+            auto factor_angle = 1.0 - abs(angle) / _boid_angle / 2.0;
+                
+            auto factor = factor_dist * factor_dist * factor_angle;
+
+            average_pos += factor * position_j;
+            average_vel += factor * w_velocities[j];
+            normalization += factor;
+
+          }
+        }
       }
 
-      max_collisions = std::max(max_collisions, potential_neighbors);
-      //auto it = acceleration_structure.find(key);
-      //for (int _j = 0; _j < potential_neighbors; ++_j, ++it) {
-      //  int j = it->second;
-      //}
+      force += (average_pos / normalization - position) * _boid_clump;
+      force += (average_vel / normalization - velocity) * _boid_align;
+      force += Vector2(RAND_RANGE(-1.0,1.0), RAND_RANGE(-1.0,1.0)) * _boid_random;
 
+      max_collisions = std::max(max_collisions, potential_neighbors);
 
       // boundary
       auto sdf_index = sdf->idx(position.x / sdf_scale.x, position.y / sdf_scale.y);
@@ -216,6 +262,7 @@ public:
       if (sdf_value < 0.0) {
         position -= sdf_value * sdf_gradient;
         velocity -= sdf_gradient * sdf_gradient.dot(velocity);
+        force += _boundary_range * sdf_gradient * _boundary_force;
       } else if (sdf_value < _boundary_range) {
         force -= (sdf_value - _boundary_range)  * sdf_gradient * _boundary_force;
       }
@@ -264,6 +311,13 @@ public:
   float _damping;
   float _boundary_range;
   float _boundary_force;
+
+  float _boid_range;
+  float _boid_angle;
+  float _boid_avoid;
+  float _boid_align;
+  float _boid_clump;
+  float _boid_random;
 
   float _cell_size;
   bool _print_max_collision;
