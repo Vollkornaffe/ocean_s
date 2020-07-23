@@ -152,20 +152,7 @@ public:
 
     for (int i = 0; i < _amount; i++) {
       if (!r_actives[i]) continue;
-
-      int x = floor(r_positions[i].x / _cell_size);
-      int y = floor(r_positions[i].y / _cell_size);
-      acceleration_structure.insert({
-          std::make_pair(cantor_pairing(x - 1, y - 1), i),
-          std::make_pair(cantor_pairing(x - 1, y    ), i),
-          std::make_pair(cantor_pairing(x - 1, y + 1), i),
-          std::make_pair(cantor_pairing(x    , y - 1), i),
-          std::make_pair(cantor_pairing(x    , y    ), i),
-          std::make_pair(cantor_pairing(x    , y + 1), i),
-          std::make_pair(cantor_pairing(x + 1, y - 1), i),
-          std::make_pair(cantor_pairing(x + 1, y    ), i),
-          std::make_pair(cantor_pairing(x + 1, y + 1), i),
-      });
+      acceleration_structure.insert(std::make_pair(key_from_position(r_positions[i]), i));
     }
 
   }
@@ -198,7 +185,22 @@ public:
 
       // here neighbors are considered
       int key = key_from_position(position);
-      int potential_neighbors = acceleration_structure.count(key);
+      int potential_neighbors = 0;
+      {
+        int x = floor(position.x / _cell_size);
+        int y = floor(position.y / _cell_size);
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x - 1, y - 1));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x - 1, y    ));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x - 1, y + 1));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x    , y - 1));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x    , y    ));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x    , y + 1));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x + 1, y - 1));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x + 1, y    ));
+        potential_neighbors += acceleration_structure.count(cantor_pairing(x + 1, y + 1));
+      }
+
+
       max_collisions = std::max(max_collisions, potential_neighbors);
       //auto it = acceleration_structure.find(key);
       //for (int _j = 0; _j < potential_neighbors; ++_j, ++it) {
