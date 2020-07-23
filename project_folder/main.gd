@@ -32,9 +32,16 @@ func _process(delta):
 	get_node("GDBoids").write_to_particles(pp)
 
 func _physics_process(delta):
-	get_node("GDBoids").update_acceleration_structure()
-	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)
+	A()
+	B(delta)
+	
 
+func A():
+	get_node("GDBoids").update_acceleration_structure()
+	
+func B(delta):
+	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)
+	
 
 func _on_SelectionRect_update_selection(position, size):
 	get_node("GDBoids").update_selection(position, position + size);

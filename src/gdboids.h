@@ -8,6 +8,7 @@
 #include <PoolArrays.hpp>
 
 #include <map>
+#include <unordered_map>
 
 #include "sdf.h"
 
@@ -152,7 +153,7 @@ public:
 
     for (int i = 0; i < _amount; i++) {
       if (!r_actives[i]) continue;
-      acceleration_structure.insert(std::make_pair(key_from_position(r_positions[i]), i));
+      acceleration_structure[key_from_position(r_positions[i])].push_back(i);
     }
 
   }
@@ -189,17 +190,17 @@ public:
       {
         int x = floor(position.x / _cell_size);
         int y = floor(position.y / _cell_size);
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x - 1, y - 1));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x - 1, y    ));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x - 1, y + 1));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x    , y - 1));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x    , y    ));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x    , y + 1));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x + 1, y - 1));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x + 1, y    ));
-        potential_neighbors += acceleration_structure.count(cantor_pairing(x + 1, y + 1));
-      }
 
+        potential_neighbors += acceleration_structure[cantor_pairing(x - 1, y - 1)].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x - 1, y    )].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x - 1, y + 1)].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x    , y - 1)].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x    , y    )].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x    , y + 1)].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x + 1, y - 1)].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x + 1, y    )].size();
+        potential_neighbors += acceleration_structure[cantor_pairing(x + 1, y + 1)].size();
+      }
 
       max_collisions = std::max(max_collisions, potential_neighbors);
       //auto it = acceleration_structure.find(key);
@@ -284,7 +285,7 @@ private:
   PoolVector2Array directions;
 
   // these are for accelerating neighbor searches
-  std::multimap<uint, int> acceleration_structure;
+  std::unordered_map<uint, std::vector<int>> acceleration_structure;
 
 };
 
