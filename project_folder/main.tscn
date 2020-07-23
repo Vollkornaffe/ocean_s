@@ -85,4 +85,5 @@ __meta__ = {
 
 [node name="GDBoids" type="Node" parent="."]
 script = ExtResource( 1 )
+cell_size = 30.0
 [connection signal="update_selection" from="GUI/SelectionRect" to="." method="_on_SelectionRect_update_selection"]

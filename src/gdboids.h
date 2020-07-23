@@ -129,12 +129,20 @@ public:
   }
 
   // this uses the cantor pairing function to map the positive quadrant
-  inline int key_from_position(Vector2 const p) {
-      int key_x = clamp(0, int(floor(p.x / _cell_size)), std::numeric_limits<int>::max());
-      int key_y = clamp(0, int(floor(p.y / _cell_size)), std::numeric_limits<int>::max());
-      return ((key_x + key_y) * (key_x + key_y + 1)) / 2 + key_y;
+  inline uint cantor_pairing(uint x, uint y) {
+      return ((x + y) * (x + y + 1)) / 2 + y;
   }
 
+  // we get the positive quadrant by casting int to uint
+  // negative nubers get very high values, so collisions are unlikely
+  inline uint key_from_position(Vector2 const p) {
+      return cantor_pairing(
+        floor(p.x / _cell_size),
+        floor(p.y / _cell_size)
+      );
+  }
+
+  // inserts a nonuple of keys for each active position
   void update_acceleration_structure() {
 
     acceleration_structure.clear();
@@ -144,7 +152,20 @@ public:
 
     for (int i = 0; i < _amount; i++) {
       if (!r_actives[i]) continue;
-      acceleration_structure.insert(std::make_pair(key_from_position(r_positions[i]), i));
+
+      int x = floor(r_positions[i].x / _cell_size);
+      int y = floor(r_positions[i].y / _cell_size);
+      acceleration_structure.insert({
+          std::make_pair(cantor_pairing(x - 1, y - 1), i),
+          std::make_pair(cantor_pairing(x - 1, y    ), i),
+          std::make_pair(cantor_pairing(x - 1, y + 1), i),
+          std::make_pair(cantor_pairing(x    , y - 1), i),
+          std::make_pair(cantor_pairing(x    , y    ), i),
+          std::make_pair(cantor_pairing(x    , y + 1), i),
+          std::make_pair(cantor_pairing(x + 1, y - 1), i),
+          std::make_pair(cantor_pairing(x + 1, y    ), i),
+          std::make_pair(cantor_pairing(x + 1, y + 1), i),
+      });
     }
 
   }
@@ -152,6 +173,8 @@ public:
   void physics_process(Vector2 goal, SDF * sdf, float delta) {
 
     if (!initialized) return;
+
+    int max_collisions = 0;
 
     auto w_selects = selects.write();
     auto w_species = species.write();
@@ -173,6 +196,16 @@ public:
       auto velocity = w_velocities[i];
       auto force = Vector2(0.0, 0.0);
 
+      // here neighbors are considered
+      int key = key_from_position(position);
+      int potential_neighbors = acceleration_structure.count(key);
+      max_collisions = std::max(max_collisions, potential_neighbors);
+      //auto it = acceleration_structure.find(key);
+      //for (int _j = 0; _j < potential_neighbors; ++_j, ++it) {
+      //  int j = it->second;
+      //}
+
+
       // boundary
       auto sdf_index = sdf->idx(position.x / sdf_scale.x, position.y / sdf_scale.y);
       auto sdf_value = sdf->values[sdf_index];
@@ -188,10 +221,6 @@ public:
       force += _to_mouse * (goal - position);
       force -= _damping * velocity;
 
-      // here neighbors are considered
-      // TODO
-
-
       // simple time integration
       velocity += force * delta;
       position += velocity * delta;
@@ -206,6 +235,10 @@ public:
       // writing
       w_positions[i] = position;
       w_velocities[i] = velocity;
+    }
+
+    if (_print_max_collision) {
+      std::cout << "max collision: " << max_collisions << std::endl;
     }
 
   }
@@ -248,9 +281,8 @@ private:
   PoolVector2Array positions;
   PoolVector2Array directions;
 
-
   // these are for accelerating neighbor searches
-  std::multimap<int, int> acceleration_structure;
+  std::multimap<uint, int> acceleration_structure;
 
 };
 
