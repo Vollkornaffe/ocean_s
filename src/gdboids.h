@@ -269,7 +269,11 @@ public:
       }
 
       // just for testing, make all the boids move towards mouse
-      force += _to_mouse * (goal - position);
+      if (w_selects[i]) {
+        force += _to_mouse * (goal - position);
+      }
+
+      // damping
       force -= _damping * velocity;
 
       // simple time integration
