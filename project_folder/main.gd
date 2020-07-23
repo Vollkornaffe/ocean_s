@@ -6,6 +6,7 @@ extends Node2D
 # var b = "text"
 
 var t = 0
+var camera_offset = Vector2(0,0)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -17,6 +18,8 @@ func _ready():
 #	pass
 
 func _process(delta): 
+	camera_offset = get_node("CameraPosition").get_position() - get_viewport().get_size() / 2;
+	get_node("GUI/SelectionRect").camera_offset = camera_offset
 	if Input.is_action_pressed("ui_accept"):
 		get_node("GDBoids").to_mouse = 1.0
 	else:
@@ -40,7 +43,7 @@ func A():
 	get_node("GDBoids").update_acceleration_structure()
 	
 func B(delta):
-	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)
+	get_node("GDBoids").physics_process(get_global_mouse_position(), get_node("SDF"), delta)
 	
 
 func _on_SelectionRect_update_selection(position, size):
