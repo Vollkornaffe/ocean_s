@@ -6,6 +6,7 @@ extends Node2D
 # var b = "text"
 
 var t = 0
+var camera_offset = Vector2(0,0)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -17,6 +18,8 @@ func _ready():
 #	pass
 
 func _process(delta): 
+	camera_offset = get_node("CameraPosition").get_position() - get_viewport().get_size() / 2;
+	get_node("GUI/SelectionRect").camera_offset = camera_offset
 	if Input.is_action_pressed("ui_accept"):
 		get_node("GDBoids").to_mouse = 1.0
 	else:
@@ -25,14 +28,23 @@ func _process(delta):
 	t += delta
 	var pp = get_node("PassiveParticles2D")
 	var amount = pp.get_amount()
-	if t > 2.0 and amount < 16384:
-		pp.set_amount(amount * 2)
-		t = 0
+	#if t > 2.0 and amount < 4096:
+	#	pp.set_amount(amount * 2)
+	#	print(amount * 2)
+	#	t = 0
 	get_node("GDBoids").write_to_particles(pp)
 
 func _physics_process(delta):
-	get_node("GDBoids").physics_process(get_viewport().get_mouse_position(), get_node("SDF"), delta)
+	A()
+	B(delta)
+	
 
+func A():
+	get_node("GDBoids").update_acceleration_structure()
+	
+func B(delta):
+	get_node("GDBoids").physics_process(get_global_mouse_position(), get_node("SDF"), delta)
+	
 
 func _on_SelectionRect_update_selection(position, size):
 	get_node("GDBoids").update_selection(position, position + size);
