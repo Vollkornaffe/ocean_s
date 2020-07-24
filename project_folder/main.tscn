@@ -91,14 +91,17 @@ __meta__ = {
 
 [node name="GDBoids" type="Node" parent="."]
 script = ExtResource( 1 )
-boundary_range = 100.0
-boundary_force = 200.0
-boid/range = 40.0
-boid/angle = 360.0
-boid/avoid = 100.0
-boid/align = 1.0
-boid/clump = 50.0
-cell_size = 40.0
+animation_speed = 0.3
+damping = 0.5
+boundary_range = 50.0
+boundary_force = 400.0
+boid/collision = 10.0
+boid/range = 50.0
+boid/angle = 240.0
+boid/avoid = 15.0
+boid/align = 5.0
+boid/clump = 20.0
+cell_size = 50.0
 
 [node name="CameraPosition" type="Position2D" parent="."]
 position = Vector2( 166.667, 100 )
