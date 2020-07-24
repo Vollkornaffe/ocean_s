@@ -67,21 +67,20 @@ script = ExtResource( 2 )
 [node name="PassiveParticles2D" type="PassiveParticles2D" parent="."]
 material = SubResource( 2 )
 z_index = 1
-amount = 4096
+amount = 2048
 texture = ExtResource( 3 )
-scale_amount = 0.5
 anim_speed = 1.0
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 color = Color( 0.5, 0.5, 0.5, 1 )
 invert_enable = true
-polygon = PoolVector2Array( 100, 1900, 559.945, 1791.5, 757.935, 1856.55, 930.47, 1593.51, 1170.89, 1471.89, 1428.27, 1635.93, 1564.04, 1853.72, 1900, 1900, 1660.2, 1392.69, 1795.97, 1344.61, 1487.67, 979.739, 1852.54, 951.455, 1770.51, 702.553, 1900, 100, 1620.61, 201.921, 1436.76, 261.318, 1303.82, 357.484, 1168.06, 184.95, 789.048, 476.278, 797.533, 204.749, 100, 100, 183.764, 399.911, 387.411, 419.71, 319.529, 603.558, 378.926, 824.175, 138.509, 787.406, 203.563, 1189.04, 376.097, 1211.67, 336.499, 971.254, 622.171, 1033.48, 743.793, 903.371, 890.872, 894.886, 800.362, 1200.36, 772.078, 1344.61, 633.484, 1404, 180.936, 1522.8 )
+polygon = PoolVector2Array( 100, 1900, 1097.1, 1844.73, 1503.47, 1711.39, 1452.68, 1336.76, 1789.2, 1285.96, 2309.87, 746.245, 2621, 1292.31, 3224.22, 1006.58, 3160.72, 1457.4, 3224.22, 1736.78, 3516.3, 1819.33, 3922.67, 1501.85, 4811.62, 987.53, 5520.61, 1578.04, 5711.1, 1768.53, 6371.46, 1806.63, 6117.48, 1247.86, 6434.96, 885.936, 6841.33, 968.481, 7146.11, 1635.19, 7900, 1900, 7736.62, 1184.37, 7495.34, 727.196, 7679.48, 327.171, 7900, 100, 100, 100, 658.975, 752.595, 1001.85, 924.034, 951.056, 1374.86, 455.787, 1336.76, 189.104, 1527.25 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="SDF" type="ReferenceRect" parent="."]
-margin_right = 1000.0
+margin_right = 4000.0
 margin_bottom = 1000.0
 rect_scale = Vector2( 2, 2 )
 script = ExtResource( 5 )
@@ -92,15 +91,17 @@ __meta__ = {
 
 [node name="GDBoids" type="Node" parent="."]
 script = ExtResource( 1 )
-boundary_range = 100.0
-boundary_force = 200.0
-boid/range = 20.0
-boid/angle = 360.0
-boid/avoid = 50.0
-boid/align = 1.0
-boid/clump = 50.0
-boid/random = 500.0
-cell_size = 20.0
+animation_speed = 0.3
+damping = 0.5
+boundary_range = 50.0
+boundary_force = 400.0
+boid/collision = 10.0
+boid/range = 50.0
+boid/angle = 240.0
+boid/avoid = 15.0
+boid/align = 5.0
+boid/clump = 20.0
+cell_size = 50.0
 
 [node name="CameraPosition" type="Position2D" parent="."]
 position = Vector2( 166.667, 100 )

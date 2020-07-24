@@ -23,6 +23,6 @@ func _process(delta):
 		new_pos.x -= delta * speed
 	if Input.is_action_pressed("ui_right"):
 		new_pos.x += delta * speed
-	set_position(Vector2(clamp(new_pos.x, 100, 1900), clamp(new_pos.y, 100, 1900)))
+	set_position(Vector2(clamp(new_pos.x, 100, 7900), clamp(new_pos.y, 100, 1900)))
 	pass
 
